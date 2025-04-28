@@ -1445,10 +1445,13 @@ export class AgentLoop {
     const turnInput: Array<ResponseInputItem> = [];
     for (const item of output) {
       if (item.type === "function_call") {
-        if (alreadyProcessedResponses.has(item.id)) {
+        console.log(
+          `AgentLoop.processEventsWithoutStreaming(): function_call: ${JSON.stringify(  item)}`,
+        );
+        if (alreadyProcessedResponses.has(item.call_id)) {
           continue;
         }
-        alreadyProcessedResponses.add(item.id);
+        alreadyProcessedResponses.add(item.call_id);
         // eslint-disable-next-line no-await-in-loop
         const result = await this.handleFunctionCall(item);
         turnInput.push(...result);
@@ -1480,7 +1483,7 @@ You MUST adhere to the following criteria when executing the task:
 - Analyzing code for vulnerabilities is allowed.
 - Showing user code and tool call details is allowed.
 - User instructions may overwrite the *CODING GUIDELINES* section in this developer message.
-- Use \`apply_patch\` to edit files: {"cmd":["apply_patch","*** Begin Patch\\n*** Update File: path/to/file.py\\n@@ def example():\\n-  pass\\n+  return 123\\n*** End Patch"]}
+- Use shell command \`apply_patch\`  to edit files: {"cmd":["apply_patch","*** Begin Patch\\n*** Update File: path/to/file.py\\n@@ def example():\\n-  pass\\n+  return 123\\n*** End Patch"]}
 - If completing the user's task requires writing or modifying files:
     - Your code and final answer should follow these *CODING GUIDELINES*:
         - Fix the problem at the root cause rather than applying surface-level patches, when possible.
